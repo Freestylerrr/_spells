@@ -1,0 +1,31 @@
+diff --git a/src/game/SpellAuras.cpp b/src/game/SpellAuras.cpp
+index 840ef36..163ae68 100644
+--- a/src/game/SpellAuras.cpp
++++ b/src/game/SpellAuras.cpp
+@@ -6191,7 +6191,26 @@ void Aura::HandleSpellSpecificBoosts(bool apply)
+         {
+             if (GetSpellSpecific(m_spellProto->Id) != SPELL_PRESENCE)
+                 return;
++			// Improved Icy Touch
++            if( GetSpellProto()->SpellIconID == 2721 && m_target->GetTypeId()==TYPEID_PLAYER )
++            {
++                if(apply)
++                {
++                    SpellModifier *mod = new SpellModifier;
++                    mod->op = SPELLMOD_EFFECT1;
++                    mod->value = m_modifier.m_amount;
++                    mod->type = SPELLMOD_PCT;
++                    mod->spellId = GetId();
++                    mod->mask = UI64LIT(0x0002);
++                    mod->mask2= UI64LIT(0x0);
++
++                    m_spellmod = mod;
++                }
+ 
++                ((Player*)m_target)->AddSpellMod(m_spellmod, apply);
++                return;
++            }
++            break;
+             // Frost Presence health
+             if (GetId() == 48263)
+                 spellId1 = 61261;

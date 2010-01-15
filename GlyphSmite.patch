@@ -1,0 +1,20 @@
+diff --git a/src/game/SpellEffects.cpp b/src/game/SpellEffects.cpp
+index 0e437fd..463d156 100644
+--- a/src/game/SpellEffects.cpp
++++ b/src/game/SpellEffects.cpp
+@@ -485,6 +485,15 @@ void Spell::EffectSchoolDMG(uint32 effect_idx)
+             }
+             case SPELLFAMILY_PRIEST:
+             {
++				 // Smite
++                else if (m_spellInfo->SpellFamilyFlags & 0x80LL)
++                {
++                    // Glyph of Smite
++                    if (Aura * aurEff = m_caster->GetAura(55692, 0))
++                        if (unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, m_caster->GetGUID()))
++                            damage += damage * aurEff->GetModifier()->m_amount / 100;
++                }
++                 break;
+                 // Shadow Word: Death - deals damage equal to damage done to caster
+                 if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000200000000))
+                     m_caster->CastCustomSpell(m_caster, 32409, &damage, 0, 0, true);

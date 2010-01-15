@@ -1,0 +1,110 @@
+diff --git a/src/game/Player.cpp b/src/game/Player.cpp
+index bb7c336..631207e 100644
+--- a/src/game/Player.cpp
++++ b/src/game/Player.cpp
+@@ -5705,7 +5705,14 @@ void Player::removeActionButton(uint8 button)
+ 
+     sLog.outDetail( "Action Button '%u' Removed from Player '%u'", button, GetGUIDLow() );
+ }
++uint32 Player::GetActionByActionButton(uint8 button)
++{
++    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
++    if (buttonItr==m_actionButtons.end())
++        return 0;
+ 
++    return buttonItr->second.GetAction();
++}
+ bool Player::SetPosition(float x, float y, float z, float orientation, bool teleport)
+ {
+     // prevent crash when a bad coord is sent by the client
+diff --git a/src/game/Player.h b/src/game/Player.h
+index 44a3bcb..7d815a8 100644
+--- a/src/game/Player.h
++++ b/src/game/Player.h
+@@ -23,7 +23,6 @@
+ #include "ItemPrototype.h"
+ #include "Unit.h"
+ #include "Item.h"
+-
+ #include "Database/DatabaseEnv.h"
+ #include "NPCHandler.h"
+ #include "QuestDef.h"
+@@ -1684,6 +1683,7 @@ class MANGOS_DLL_SPEC Player : public Unit
+         ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
+         void removeActionButton(uint8 button);
+         void SendInitialActionButtons() const;
++		uint32 GetActionByActionButton(uint8 button);
+ 
+         PvPInfo pvpInfo;
+         void UpdatePvP(bool state, bool ovrride=false);
+diff --git a/src/game/Spell.cpp b/src/game/Spell.cpp
+index b082a09..1906858 100644
+--- a/src/game/Spell.cpp
++++ b/src/game/Spell.cpp
+@@ -493,7 +493,9 @@ void Spell::FillTargetMap()
+         // for area auras always add caster as target (needed for totems for example)
+         if(IsAreaAuraEffect(m_spellInfo->Effect[i]))
+             AddUnitTarget(m_caster, i);
+-
++		 // SPELL_EFFECT_SUMMON_ALL_TOTEMS not have any implicit target
++        if(m_spellInfo->Effect[i] == SPELL_EFFECT_SUMMON_ALL_TOTEMS)
++            AddUnitTarget(m_caster, i);
+         std::list<Unit*> tmpUnitMap;
+ 
+         // TargetA/TargetB dependent from each other, we not switch to full support this dependences
+diff --git a/src/game/Spell.h b/src/game/Spell.h
+index 8fe6d16..e8de8ac 100644
+--- a/src/game/Spell.h
++++ b/src/game/Spell.h
+@@ -304,6 +304,7 @@ class Spell
+         void EffectPlayerPull(uint32 i);
+         void EffectDispelMechanic(uint32 i);
+         void EffectSummonDeadPet(uint32 i);
++		void EffectSummonAllTotems(uint32 i);
+         void EffectDestroyAllTotems(uint32 i);
+         void EffectDurabilityDamage(uint32 i);
+         void EffectSkill(uint32 i);
+diff --git a/src/game/SpellEffects.cpp b/src/game/SpellEffects.cpp
+index 0e437fd..3200d69 100644
+--- a/src/game/SpellEffects.cpp
++++ b/src/game/SpellEffects.cpp
+@@ -154,7 +154,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
+     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
+     &Spell::EffectSkinning,                                 // 95 SPELL_EFFECT_SKINNING
+     &Spell::EffectCharge,                                   // 96 SPELL_EFFECT_CHARGE
+-    &Spell::EffectUnused,                                   // 97 SPELL_EFFECT_97
++    &Spell::EffectSummonAllTotems,                          // 97 SPELL_EFFECT_SUMMON_ALL_TOTEMS
+     &Spell::EffectKnockBack,                                // 98 SPELL_EFFECT_KNOCK_BACK
+     &Spell::EffectDisEnchant,                               // 99 SPELL_EFFECT_DISENCHANT
+     &Spell::EffectInebriate,                                //100 SPELL_EFFECT_INEBRIATE
+@@ -6548,7 +6548,30 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
+     // _player->PetSpellInitialize(); -- action bar not removed at death and not required send at revive
+     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+ }
++void Spell::EffectSummonAllTotems(uint32 i)
++{
++    if(m_caster->GetTypeId() != TYPEID_PLAYER)
++        return;
+ 
++    switch(m_spellInfo->Id)
++    {
++        case 66842:         // Call of the Elements
++        case 66843:         // Call of the Ancestors
++        case 66844:         // Call of the Spirits
++        {
++            for(int32 slot = 0; slot != MAX_TOTEM; ++slot)
++            {
++                uint8 button = m_spellInfo->EffectMiscValue[i]+slot+132;
++                uint32 spell_id = ((Player*)m_caster)->GetActionByActionButton(button);
++                if(spell_id && !HasSpellCooldown(spell_id))
++                    m_caster->CastSpell(unitTarget,spell_id,true);
++            }
++            break;
++        }
++        default:
++            break;
++    }
++}
+ void Spell::EffectDestroyAllTotems(uint32 /*i*/)
+ {
+     int32 mana = 0;

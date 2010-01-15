@@ -1,0 +1,13 @@
+diff --git a/src/game/SpellAuras.cpp b/src/game/SpellAuras.cpp
+index 840ef36..6b6344e 100644
+--- a/src/game/SpellAuras.cpp
++++ b/src/game/SpellAuras.cpp
+@@ -4357,7 +4357,7 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
+         if (Unit* owner = m_target->GetOwner())
+         {
+             // Search talent
+-            Unit::AuraList const& dummyAuras = owner->GetAurasByType(SPELL_AURA_DUMMY);
++            Unit::AuraList const& dummyAuras = owner->GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+             for(Unit::AuraList::const_iterator i = dummyAuras.begin(); i != dummyAuras.end(); ++i)
+             {
+                 if ((*i)->GetSpellProto()->SpellIconID == 2229)

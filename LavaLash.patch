@@ -1,0 +1,15 @@
+diff --git a/src/game/Item.cpp b/src/game/Item.cpp
+index 8afad4a..e18f5bc 100644
+--- a/src/game/Item.cpp
++++ b/src/game/Item.cpp
+@@ -751,7 +751,9 @@ bool Item::IsBoundByEnchant() const
+ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
+ {
+     ItemPrototype const* proto = GetProto();
+-
++	//Lava Lash
++    if (spellInfo->Id==60103 && spellInfo->EquippedItemClass==ITEM_CLASS_WEAPON)
++         return true;
+     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
+     {
+         if(spellInfo->EquippedItemClass != int32(proto->Class))

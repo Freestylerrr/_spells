@@ -1,0 +1,130 @@
+diff --git a/src/game/SpellEffects.cpp b/src/game/SpellEffects.cpp
+index 0e437fd..78b4d69 100644
+--- a/src/game/SpellEffects.cpp
++++ b/src/game/SpellEffects.cpp
+@@ -4979,6 +4979,67 @@ void Spell::EffectScriptEffect(uint32 effIndex)
+                     m_caster->CastSpell(m_caster,spell_id,true,NULL);
+                     return;
+                 }
++				// Glyph of Starfire
++                case 54846:
++                {
++                    if (Aura * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00000002,0,m_caster->GetGUID()))
++                    {
++                        uint32 countMin = aurEff->GetAuraMaxDuration();
++                        uint32 countMax = 18000;
++                        countMax += m_caster->HasAura(38414) ? 3000 : 0;
++                        countMax += m_caster->HasAura(57865) ? 3000 : 0;
++
++                        if (countMin < countMax)
++                        {
++                            aurEff->SetAuraDuration(uint32(aurEff->GetAuraDuration()+3000));
++                            aurEff->SetAuraMaxDuration(countMin+3000);
++                            aurEff->SendAuraUpdate(false);
++                        }
++                    }
++                    return;
++                }
++                // Glyph of Shred
++                case 63974:
++                {
++                    if (Aura * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00800000,0,m_caster->GetGUID()))
++                    {
++                        uint32 countMin = aurEff->GetAuraMaxDuration();
++                        uint32 countMax = 20000;
++                        countMax += m_caster->HasAura(54818) ? 4000 : 0;
++                        countMax += m_caster->HasAura(60141) ? 4000 : 0;
++
++                        if (countMin < countMax)
++                        {
++                            aurEff->SetAuraDuration(uint32(aurEff->GetAuraDuration()+3000));
++                            aurEff->SetAuraMaxDuration(countMin+2000);
++                            aurEff->SendAuraUpdate(false);
++                        }
++
++                    }
++                    return;
++                }
++                // Glyph of Backstab
++                case 63975:
++                {
++                    if (Aura * aurEff = unitTarget->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_ROGUE,0x00100000,0,m_caster->GetGUID()))
++                    {
++                        uint32 countMin = aurEff->GetAuraMaxDuration();
++                        uint32 countMax = 12000;
++                        countMax += m_caster->HasAura(56801) ? 4000 : 0;
++
++                        if (countMin < countMax)
++                        {
++                            aurEff->SetAuraDuration(uint32(aurEff->GetAuraDuration()+3000));
++                            aurEff->SetAuraMaxDuration(countMin+2000);
++                            aurEff->SendAuraUpdate(false);
++                        }
++
++                    }
++                    return;
++                }
++            }
++             break;
++         }
+                 // Piccolo of the Flaming Fire
+                 case 17512:
+                 {
+diff --git a/src/game/Unit.cpp b/src/game/Unit.cpp
+index 6757b12..0eb34d3 100644
+--- a/src/game/Unit.cpp
++++ b/src/game/Unit.cpp
+@@ -5830,13 +5830,37 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
+                     triggered_spell_id = 32747;
+                     break;
+                 }
++				 // Glyph of Starfire
++                case 54845:
++                {
++                    triggered_spell_id = 54846;
++                    break;
++                }
++                // Glyph of Shred
++                case 54815:
++                {
++                    triggered_spell_id = 63974;
++                    break;
++                }
++                // Glyph of Rake
++                case 54821:
++                {
++                    if (procSpell->SpellVisual[0] == 750 && procSpell->EffectApplyAuraName[1] == 3)
++                    {
++                        if (target->GetTypeId() == TYPEID_UNIT)
++                        {
++                            triggered_spell_id = 54820;
++                            break;
++                        }
++                    }
++                    return false;
++                }
+                 // Glyph of Rejuvenation
+                 case 54754:
+                 {
+-                    // less 50% health
+-                    if (pVictim->GetMaxHealth() < 2 * pVictim->GetHealth())
++                    if (!pVictim || pVictim->GetHealth() >= triggerAmount * pVictim->GetMaxHealth()/100)
+                         return false;
+-                    basepoints0 = triggerAmount * damage / 100;
++                    basepoints0 = int32(triggerAmount * damage / 100);
+                     triggered_spell_id = 54755;
+                     break;
+                 }
+@@ -5894,6 +5918,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
+                     triggered_spell_id = 32747;
+                     break;
+                 }
++				// Glyph of Backstab
++                case 56800:
++                {
++                    triggered_spell_id = 63975;
++                    break;
++                }
+             }
+             // Cut to the Chase
+             if (dummySpell->SpellIconID == 2909)

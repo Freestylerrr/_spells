@@ -1,0 +1,81 @@
+diff --git a/src/game/SpellAuras.cpp b/src/game/SpellAuras.cpp
+index 840ef36..55ee94f 100644
+--- a/src/game/SpellAuras.cpp
++++ b/src/game/SpellAuras.cpp
+@@ -2272,6 +2272,36 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
+                             // not use ammo and not allow use
+                             ((Player*)m_target)->RemoveAmmo();
+                         return;
++						 case 55328:                                 // Stoneclaw Totem I
++                        m_target->CastSpell( m_target, 5728, true );
++                        return;
++                    case 55329:                                 // Stoneclaw Totem II
++                        m_target->CastSpell( m_target, 6397, true );
++                        return;
++                    case 55330:                                 // Stoneclaw Totem III
++                        m_target->CastSpell( m_target, 6398, true );
++                        return;
++                    case 55332:                                 // Stoneclaw Totem IV
++                        m_target->CastSpell( m_target, 6399, true );
++                        return;
++                    case 55333:                                 // Stoneclaw Totem V
++                        m_target->CastSpell( m_target, 10425, true );
++                        return;
++                    case 55335:                                 // Stoneclaw Totem VI
++                        m_target->CastSpell( m_target, 10426, true );
++                        return;
++                    case 55278:                                 // Stoneclaw Totem VII
++                        m_target->CastSpell( m_target, 25513, true );
++                        return;
++                    case 58589:                                 // Stoneclaw Totem VIII
++                        m_target->CastSpell( m_target, 58583, true );
++                        return;
++                    case 58590:                                 // Stoneclaw Totem IX
++                        m_target->CastSpell( m_target, 58584, true );
++                        return;
++                    case 58591:                                 // Stoneclaw Totem X
++                        m_target->CastSpell( m_target, 58585, true );
++						return;
+                     case 62061:                             // Festive Holiday Mount
+                         if (m_target->HasAuraType(SPELL_AURA_MOUNTED))
+                             // Reindeer Transformation
+diff --git a/src/game/SpellEffects.cpp b/src/game/SpellEffects.cpp
+index 0e437fd..9af3d72 100644
+--- a/src/game/SpellEffects.cpp
++++ b/src/game/SpellEffects.cpp
+@@ -5236,6 +5236,35 @@ void Spell::EffectScriptEffect(uint32 effIndex)
+                     unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOD_STUN);
+                     return;
+                 }
++				case 55328:                                    // Stoneclaw Totem I
++                case 55329:                                    // Stoneclaw Totem II
++                case 55330:                                    // Stoneclaw Totem III
++                case 55332:                                    // Stoneclaw Totem IV
++                case 55333:                                    // Stoneclaw Totem V
++                case 55335:                                    // Stoneclaw Totem VI
++                case 55278:                                    // Stoneclaw Totem VII
++                case 58589:                                    // Stoneclaw Totem VIII
++                case 58590:                                    // Stoneclaw Totem IX
++                case 58591:                                    // Stoneclaw Totem X
++                {
++                    if ( !unitTarget )    // Stoneclaw Totem owner
++                        return;
++                    // Absorb shield for totems
++                    for(int itr = 0; itr < MAX_TOTEM; ++itr)
++                    {
++                        Unit* totem = ObjectAccessor::GetUnit( *unitTarget,  unitTarget->m_TotemSlot[itr] );
++                        if( totem )
++                            m_caster->CastCustomSpell( totem, 55277, &damage, NULL, NULL, true );
++                    }
++                    // Glyph of Stoneclaw Totem
++                    if( Aura* auraGlyph = unitTarget->GetAura( 63298,0 ) )
++                    {
++                        int32 playerAbsorb = damage * auraGlyph->GetModifier()->m_amount;
++                        m_caster->CastCustomSpell( unitTarget, 55277, &playerAbsorb, NULL, NULL, true );
++                    }
++				}
++                    return;
++
+                 case 55693:                                 // Remove Collapsing Cave Aura
+                     if(!unitTarget)
+                         return;

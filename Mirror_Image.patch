@@ -1,0 +1,56 @@
+diff --git a/src/game/SpellAuras.cpp b/src/game/SpellAuras.cpp
+index 840ef36..19cb686 100644
+--- a/src/game/SpellAuras.cpp
++++ b/src/game/SpellAuras.cpp
+@@ -7391,8 +7391,12 @@ void Aura::PeriodicDummyTick()
+         case SPELLFAMILY_MAGE:
+         {
+             // Mirror Image
+-//            if (spell->Id == 55342)
+-//                return;
++			if (spell->Id == 55342)
++            {
++                // Set name of summons to name of caster
++                m_target->CastSpell((Unit *)NULL, m_spellProto->EffectTriggerSpell[m_effIndex], true);
++                m_isPeriodic = false;
++            }
+             break;
+         }
+         case SPELLFAMILY_DRUID:
+diff --git a/src/game/SpellEffects.cpp b/src/game/SpellEffects.cpp
+index 0e437fd..5cebc9a 100644
+--- a/src/game/SpellEffects.cpp
++++ b/src/game/SpellEffects.cpp
+@@ -2082,6 +2082,15 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
+     // special cases
+     switch(triggered_spell_id)
+     {
++		  // Mirror Image
++        case 58832:
++        {
++            // Glyph of Mirror Image
++            if (m_caster->HasAura(63093))
++               m_caster->CastSpell(m_caster, 65047, true); // Mirror Image
++
++            break;
++        }
+         // Vanish (not exist)
+         case 18461:
+         {
+@@ -3874,7 +3883,15 @@ void Spell::EffectSummonWild(uint32 i, uint32 forceFaction)
+         {
+             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+             summon->SetCreatorGUID(m_caster->GetGUID());
+-
++			 //Mirror image
++            if(creature_entry == 31216)
++            {
++                summon->SetLevel(m_caster->getLevel());
++                summon->SetHealth(28 + 30*m_caster->getLevel());
++                summon->setPowerType(POWER_MANA);
++                summon->SetPower(POWER_MANA, 28 + 30*m_caster->getLevel());
++                summon->SetPvP(true);
++            }
+             if(forceFaction)
+                 summon->setFaction(forceFaction);
+         }

@@ -1,0 +1,17 @@
+diff --git a/src/game/SpellEffects.cpp b/src/game/SpellEffects.cpp
+index 0e437fd..9d000cc 100644
+--- a/src/game/SpellEffects.cpp
++++ b/src/game/SpellEffects.cpp
+@@ -2183,6 +2183,12 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
+                 pet->CastSpell(pet, 28305, true);
+             return;
+         }
++		// Empower Rune Weapon
++        case 53258:
++        {
++             m_caster->ModifyPower(POWER_RUNIC_POWER, 25);
++             return;
++        }
+     }
+ 
+     // normal case
