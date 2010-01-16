@@ -1,0 +1,59 @@
+diff --git a/src/bindings/scripts/world/npcs_special.cpp b/src/bindings/scripts/world/npcs_special.cpp
+index b08f78f..85607ce 100644
+--- a/src/bindings/scripts/world/npcs_special.cpp
++++ b/src/bindings/scripts/world/npcs_special.cpp
+@@ -1664,6 +1664,7 @@ enum
+     QUEST_RETURN_TO_KHAGDAR               = 9837,
+     QUEST_SCEPTER_OF_CELEBRAS             = 7046,
+     QUEST_CONTAINMENT                     = 13159,
++	QUEST_ETERNAL_VIGILANCE               = 11011,
+ 
+     ITEM_ARCATRAZ_KEY                     = 31084,
+     ITEM_SHADOWFORGE_KEY                  = 11000,
+@@ -1672,6 +1673,7 @@ enum
+     ITEM_THE_MASTERS_KEY                  = 24490,
+     ITEM_SCEPTER_OF_CELEBRAS              = 17191,
+     ITEM_VIOLET_HOLD_KEY                  = 42482,
++	ITEM_ESSENCE_INFUSED_MOONSTONE        = 32449,
+ 
+     SPELL_ARCATRAZ_KEY                    = 54881,
+     SPELL_SHADOWFORGE_KEY                 = 54882,
+@@ -1679,7 +1681,8 @@ enum
+     SPELL_SHATTERED_HALLS_KEY             = 54884,
+     SPELL_THE_MASTERS_KEY                 = 54885,
+     SPELL_SCEPTER_OF_CELEBRAS             = 56211,
+-    SPELL_VIOLET_HOLD_KEY                 = 67253
++    SPELL_VIOLET_HOLD_KEY                 = 67253,
++	SPELL_ESSENCE_INFUSED_MOONSTONE       = 40173,
+ };
+ 
+ #define GOSSIP_LOST_ARCATRAZ_KEY         "I've lost my key to the Arcatraz."
+@@ -1689,6 +1692,7 @@ enum
+ #define GOSSIP_LOST_THE_MASTERS_KEY      "I've lost my key to the Karazhan."
+ #define GOSSIP_LOST_SCEPTER              "I've lost my Scepter of Celebras"
+ #define GOSSIP_LOST_VIOLET_HOLD_KEY      "I've lost my key to the Violet Hold."
++#define GOSSIP_LOST_ESSENCE_INFUSED_MOONSTONE "I've lost my key to the The Raven's Claw."
+ 
+ 
+ bool GossipHello_npc_locksmith(Player* pPlayer, Creature* pCreature)
+@@ -1723,6 +1727,9 @@ bool GossipHello_npc_locksmith(Player* pPlayer, Creature* pCreature)
+     // Violet Hold Key
+     if (pPlayer->GetQuestRewardStatus(QUEST_CONTAINMENT) && !pPlayer->HasItemCount(ITEM_VIOLET_HOLD_KEY, 1, true))
+         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_VIOLET_HOLD_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +7);
++	// Essence Infused Moonstone
++	if (pPlayer->GetQuestRewardStatus(QUEST_ETERNAL_VIGILANCE) && !pPlayer->HasItemCount(ITEM_ESSENCE_INFUSED_MOONSTONE, 1, true))
++        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_ESSENCE_INFUSED_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +8);
+ 
+     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+ 
+@@ -1761,6 +1768,10 @@ bool GossipSelect_npc_locksmith(Player* pPlayer, Creature* pCreature, uint32 uiS
+             pPlayer->CLOSE_GOSSIP_MENU();
+             pPlayer->CastSpell(pPlayer, SPELL_VIOLET_HOLD_KEY, false);
+             break;
++		case GOSSIP_ACTION_INFO_DEF+8:
++            pPlayer->CLOSE_GOSSIP_MENU();
++            pPlayer->CastSpell(pPlayer, SPELL_ESSENCE_INFUSED_MOONSTONE, false);
++            break;
+     }
+     return true;
+ }
